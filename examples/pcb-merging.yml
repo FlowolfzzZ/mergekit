@@ -1,0 +1,16 @@
+models:
+  - model: /home/lizijian/Ffts/Meta-Llama-3-8B/alpaca_cleaned
+    parameters:
+      weight: 1.0
+  - model: /home/lizijian/Ffts/Meta-Llama-3-8B/numinamath-cot
+    parameters:
+      weight: 1.0
+  - model: /home/lizijian/Ffts/Meta-Llama-3-8B/code-alpaca
+    parameters:
+      weight: 1.0
+merge_method: pcb_merging
+base_model: /home/lizijian/Models/Meta-Llama-3-8B
+dtype: float16
+parameters:
+  lambda: 1.0
+  density: 0.8
