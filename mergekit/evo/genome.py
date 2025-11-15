@@ -1,5 +1,5 @@
 # Copyright (C) 2025 Arcee AI
-# SPDX-License-Identifier: BUSL-1.1
+# SPDX-License-Identifier: LGPL-3.0-only
 
 import logging
 import os
@@ -54,7 +54,7 @@ class ModelGenomeDefinition(BaseModel, frozen=True):
 
 
 class ModelGenome:
-    definiton: ModelGenomeDefinition
+    definition: ModelGenomeDefinition
     num_layers: int
     _input_config_example: transformers.PretrainedConfig
 

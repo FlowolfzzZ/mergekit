@@ -1,5 +1,5 @@
 # Copyright (C) 2025 Arcee AI
-# SPDX-License-Identifier: BUSL-1.1
+# SPDX-License-Identifier: LGPL-3.0-only
 
 import logging
 from typing import Dict, Optional, Tuple
@@ -35,6 +35,8 @@ def initialize_io(
         out_path=out_path,
         max_shard_size=merge_options.out_shard_size,
         safe_serialization=merge_options.safe_serialization,
+        use_async=merge_options.async_write,
+        max_write_threads=merge_options.write_threads,
     )
 
     return loaders, base_loader, writer
@@ -76,11 +78,19 @@ def copy_tensor_out(
     clone: bool = False,
 ):
     out_tensor_name = output_name or weight_info.name
+    aliases = weight_info.aliases or []
+    if not weight_info.optional:
+        aliases += weight_info.tied_names or []
     try:
-        tensor = loader.get_tensor(weight_info.name, aliases=weight_info.aliases)
+        tensor = loader.get_tensor(
+            weight_info.name,
+            aliases=aliases,
+        )
     except KeyError:
         tensor = None
-    if tensor is None and not weight_info.optional:
+    if tensor is None:
+        if weight_info.optional:
+            return
         logging.error(f"Missing weight: {weight_info.name} / {out_tensor_name}")
         raise KeyError(out_tensor_name)
 
