@@ -403,9 +403,9 @@ def build_embedding_matrix(
 ) -> torch.Tensor:
     LOG.info(f"Building new tensor for {weight_info.name}")
     stats = TokenAssignmentStats()
-    out_vocab_size = max(len(donor_vocab), max(donor_vocab.values()) + 1)
     orig_rows = orig_embed.shape[0]
     donor_rows = donor_embed.shape[0]
+    out_vocab_size = max(len(donor_vocab), max(donor_vocab.values()) + 1, donor_rows)
     safe_orig_vocab = {tok: idx for tok, idx in orig_vocab.items() if idx < orig_rows}
     safe_donor_vocab = {
         tok: idx for tok, idx in donor_vocab.items() if idx < donor_rows
