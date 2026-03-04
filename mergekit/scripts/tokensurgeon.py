@@ -109,6 +109,14 @@ def get_embedding_info(
 ) -> Tuple[WeightInfo, WeightInfo]:
     """Get WeightInfo for the input and output embeddings of a model."""
 
+    # --- 新增针对 fm9g 的硬编码逻辑 ---
+    if arch_info.config.model_type == "fm9g":
+        LOG.info("Detected FM9G architecture, using hardcoded embedding paths.")
+        embed_wi = WeightInfo(name="model.embed_tokens.weight")
+        lm_head_wi = WeightInfo(name="lm_head.weight")
+        return embed_wi, lm_head_wi
+    # --------------------------------
+
     if len(arch_info.info.modules) != 1:
         raise RuntimeError("Model has multiple modules - not supported by tokensurgeon")
     name = next(iter(arch_info.info.modules.keys()))
@@ -152,6 +160,21 @@ def get_stuff(
     )
     vocab = normalized_vocabulary(tokenizer)
     embed_wi, lm_head_wi = get_embedding_info(arch_info)
+
+    # --- 新增：确保 embed_wi 不为 None ---
+    if embed_wi is None:
+        if arch_info.config.model_type == "fm9g":
+             from mergekit.architecture.base import WeightInfo
+             embed_wi = WeightInfo(name="model.embed_tokens.weight")
+        else:
+             raise RuntimeError(f"Could not identify input embedding for model type {arch_info.config.model_type}")
+    
+    if lm_head_wi is None:
+        if arch_info.config.model_type == "fm9g":
+             from mergekit.architecture.base import WeightInfo
+             lm_head_wi = WeightInfo(name="lm_head.weight")
+    # --------------------------------------
+    
     loader = LoaderCache().get(model)
     embed = loader.get_tensor(
         embed_wi.name,
